@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>รพ.สต.บ้านคำยาง — ระบบเฝ้าระวัง สอบสวน และควบคุมโรค</title>
+<meta name="theme-color" content="#0f9d8a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="บ้านคำยาง">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f7f9;--card:#fff;--line:#e3e9ee;--txt:#1f2d3a;--mut:#6b7c8a;--pri:#0f9d8a;--pri-d:#0b7a6b;
+--red:#fde8e8;--red-t:#c0392b;--amb:#fff3dc;--amb-t:#b9770e;--blu:#e5f0ff;--blu-t:#1d5fbf;--grn:#e3f6ec;--grn-t:#1e8449}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--txt);font-size:15px}
+.app{display:flex;min-height:100vh}
+.side{width:250px;background:#fff;border-right:1px solid var(--line);padding:14px 10px;position:fixed;top:0;bottom:0;overflow:auto;z-index:20;transition:transform .2s}
+.brand{display:flex;gap:10px;align-items:center;padding:6px 8px 14px}
+.logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#19b9a3,#0b7a6b);color:#fff;display:grid;place-items:center;font-size:20px}
+.brand b{display:block;font-size:15px;line-height:1.2}.brand small{color:var(--mut);font-size:12px}
+.nav a{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;color:var(--txt);text-decoration:none;cursor:pointer;margin-bottom:2px}
+.nav a:hover{background:#f0f5f7}.nav a.on{background:#dff3ef;color:var(--pri-d);font-weight:600}
+.nav .badge{margin-left:auto;background:#d63031;color:#fff;border-radius:99px;font-size:11px;padding:1px 7px}
+.main{margin-left:250px;flex:1;min-width:0;display:flex;flex-direction:column}
+.top{background:#fff;border-bottom:1px solid var(--line);padding:12px 20px;padding-top:calc(12px + env(safe-area-inset-top));display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+.top h1{font-size:18px;margin:0}.top small{color:var(--mut);display:block;font-size:12px}
+.menu{display:none;border:1px solid var(--line);background:#fff;border-radius:8px;font-size:20px;padding:2px 10px;cursor:pointer}
+.clock{margin-left:auto;color:var(--mut);font-variant-numeric:tabular-nums;font-size:13px}
+.content{padding:18px 20px;flex:1}
+.grid2{display:grid;grid-template-columns:1.2fr 1fr;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.card h3{margin:0 0 10px;font-size:16px}
+.status{padding:18px;border-radius:14px}
+.status.red{background:linear-gradient(135deg,#fff1f1,#fde0e0)}.status.amber{background:linear-gradient(135deg,#fffaf0,#ffefcf)}.status.green{background:linear-gradient(135deg,#f1fbf6,#dcf4e7)}
+.pill{display:inline-block;font-size:12px;padding:3px 10px;border-radius:99px;background:#fff;border:1px solid var(--line)}
+.status h2{margin:10px 0 4px;font-size:21px}
+.todo a{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;margin-bottom:6px;cursor:pointer;text-decoration:none;color:var(--txt)}
+.todo a b{margin-left:auto;font-size:16px}
+.t-red{background:var(--red);color:var(--red-t)!important}.t-amber{background:var(--amb);color:var(--amb-t)!important}.t-blue{background:var(--blu);color:var(--blu-t)!important}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:16px 0}
+.kpi{background:#fff;border:1px solid var(--line);border-top:3px solid var(--pri);border-radius:12px;padding:12px 14px}
+.kpi span{color:var(--mut);font-size:13px}.kpi b{display:block;font-size:28px;margin-top:2px}
+.bars{display:flex;align-items:flex-end;gap:8px;height:150px;padding-top:10px}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.bar i{display:block;width:100%;background:linear-gradient(#27c3ad,#0f9d8a);border-radius:6px 6px 0 0;min-height:2px}
+.bar em{font-style:normal;font-size:12px;margin-bottom:3px}.bar small{font-size:10px;color:var(--mut);margin-top:4px;text-align:center}
+.rank div{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--line)}
+.alert{background:var(--red);color:var(--red-t);padding:10px 12px;border-radius:10px;margin-bottom:8px}
+.ok{color:var(--mut)}
+.tools{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+input,select,textarea{font:inherit;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;width:100%}
+.tools input{flex:1;min-width:180px;width:auto}
+.btn{font:inherit;border:0;background:var(--pri);color:#fff;padding:9px 16px;border-radius:9px;cursor:pointer;font-weight:600}
+.btn:hover{background:var(--pri-d)}.btn:disabled{opacity:.6;cursor:default}
+.btn.sec{background:#eef2f5;color:var(--txt)}.btn.del{background:#fdeaea;color:var(--red-t)}.btn.sm{padding:5px 10px;font-size:13px}
+.tbl{overflow:auto;background:#fff;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:620px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#f7fafb;font-size:13px;color:var(--mut);white-space:nowrap}
+.b{font-size:12px;padding:2px 9px;border-radius:99px;white-space:nowrap}
+.b.r{background:var(--red);color:var(--red-t)}.b.a{background:var(--amb);color:var(--amb-t)}.b.g{background:var(--grn);color:var(--grn-t)}.b.n{background:#eef2f5;color:var(--mut)}
+.empty{text-align:center;color:var(--mut);padding:30px}
+.modal{position:fixed;inset:0;background:rgba(15,30,40,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:12px}
+.modal.show{display:flex}
+.box{background:#fff;border-radius:14px;width:100%;max-width:640px;max-height:92vh;overflow:auto;padding:18px}
+.box label{font-size:13px;color:var(--mut);display:block;margin-bottom:3px}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form .full{grid-column:1/-1}
+.foot{text-align:center;color:var(--mut);font-size:12px;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1f2d3a;color:#fff;padding:10px 18px;border-radius:10px;display:none;z-index:99;max-width:92vw}
+@media(max-width:860px){.side{transform:translateX(-100%)}.side.open{transform:none;box-shadow:0 0 30px rgba(0,0,0,.2)}
+.main{margin-left:0}.menu{display:block}.grid2{grid-template-columns:1fr}.form{grid-template-columns:1fr}.clock{display:none}
+.top{padding-left:12px;padding-right:12px;gap:8px}.top .acts{flex-wrap:wrap;justify-content:flex-end}.content{padding:14px 12px}}
+.loginwrap{min-height:100vh;align-items:center;justify-content:center;background:linear-gradient(135deg,#e3f6f2,#f4f7f9);padding:16px}
+.lbox{background:#fff;border:1px solid var(--line);border-radius:18px;max-width:420px;width:100%;padding:28px 24px;text-align:center;box-shadow:0 10px 40px rgba(15,60,70,.1)}
+.lbox h1{margin:10px 0 2px;font-size:22px}.lbox p{color:var(--mut);margin:0 0 18px}
+.logo.big{width:56px;height:56px;font-size:28px;margin:0 auto}
+.lbtn{display:block;padding:13px 16px;border-radius:12px;color:#fff;text-decoration:none;font-weight:600;margin-bottom:10px}
+.lbtn.prv{background:#0f9d8a}.lbtn.thaid{background:#1d4ed8}
+.lerr{background:var(--red);color:var(--red-t);padding:10px 12px;border-radius:10px;margin-bottom:12px;text-align:left}
+.lerr code{background:#fff;padding:2px 6px;border-radius:6px;word-break:break-all;user-select:all}
+.who{font-size:13px;color:var(--mut)}
+.ldiv{color:var(--mut);font-size:13px;margin:6px 0 10px}
+</style>
+</head>
+<body>
+<div id="login" class="loginwrap" style="display:flex"><div class="lbox"><div class="logo big">✚</div><h1>รพ.สต.บ้านคำยาง</h1><p>กำลังเชื่อมต่อระบบ...</p><div class="foot">Version 1.0.0 By Thanet</div></div></div>
+<div class="app" id="appRoot" style="display:none">
+  <aside class="side" id="side">
+    <div class="brand"><div class="logo">✚</div><div><b id="appName">รพ.สต.บ้านคำยาง</b><small>เฝ้าระวัง สอบสวน ควบคุมโรค</small></div></div>
+    <div class="nav" id="nav"></div>
+  </aside>
+  <div class="main">
+    <div class="top">
+      <button class="menu" onclick="document.getElementById('side').classList.toggle('open')">☰</button>
+      <div><h1 id="appTitle">รพ.สต.บ้านคำยาง</h1><small><span id="appSub"></span> · <b id="pageTitle">แดชบอร์ด</b></small></div>
+      <div class="acts" style="margin-left:auto;display:flex;gap:10px;align-items:center"><span class="who" id="live"></span><span class="clock" id="clock"></span><span class="who" id="who"></span><button class="btn sec sm" id="installBtn" onclick="installApp()">📲 ติดตั้ง</button><button class="btn sec sm" onclick="openPw()">เปลี่ยนรหัสผ่าน</button><button class="btn sec sm" onclick="logout()">ออกจากระบบ</button></div>
+    </div>
+    <div class="content" id="content"><div class="empty">กำลังโหลด...</div></div>
+    <div class="foot" id="foot">Version 1.0.0 By Thanet</div>
+  </div>
+</div>
+
+<div class="modal" id="modal"><div class="box">
+  <h3 id="mTitle" style="margin-top:0"></h3>
+  <form id="form" class="form" onsubmit="return false"></form>
+  <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px">
+    <button class="btn sec" onclick="closeModal()">ยกเลิก</button>
+    <button class="btn" id="saveBtn" onclick="saveForm()">บันทึก</button>
+  </div>
+</div></div>
+
+<div class="modal" id="pwm"><div class="box" style="max-width:380px">
+  <h3 style="margin-top:0">เปลี่ยนรหัสผ่าน</h3>
+  <form onsubmit="return doChangePw(event)">
+    <label>รหัสผ่านเดิม</label><input type="password" id="pw0" autocomplete="current-password" style="margin-bottom:10px">
+    <label>รหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)</label><input type="password" id="pw1" autocomplete="new-password" style="margin-bottom:10px">
+    <label>ยืนยันรหัสผ่านใหม่</label><input type="password" id="pw2" autocomplete="new-password" style="margin-bottom:14px">
+    <div id="pwmsg"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button type="button" class="btn sec" onclick="closePw()">ยกเลิก</button>
+      <button class="btn" id="pwgo">บันทึก</button>
+    </div>
+  </form>
+</div></div>
+
+<div class="modal" id="help"><div class="box">
+  <h3 style="margin-top:0">📲 ติดตั้งเป็นแอปบนเครื่อง</h3>
+  <p><b>📱 iPhone / iPad (Safari)</b><br>แตะปุ่มแชร์ (สี่เหลี่ยมมีลูกศรขึ้น) → <b>เพิ่มไปยังหน้าจอโฮม</b></p>
+  <p><b>🤖 Android (Chrome)</b><br>แตะเมนู ⋮ → <b>ติดตั้งแอป</b></p>
+  <p><b>💻 คอมพิวเตอร์ / แล็ปท็อป (Chrome, Edge)</b><br>กดไอคอนติดตั้งที่ท้ายช่องที่อยู่เว็บ หรือเมนู ⋮ → <b>ติดตั้ง รพ.สต.บ้านคำยาง</b></p>
+  <p style="color:var(--mut);font-size:13px">เมื่อติดตั้งแล้วจะเปิดเป็นหน้าต่างแอปแยก ข้อมูลอัปเดตอัตโนมัติเมื่อมีผู้ใช้อื่นบันทึกหรือลบข้อมูล (ตรวจทุก 15 วินาที) หากออฟไลน์จะเปิดหน้าแอปได้ แต่ดู/บันทึกข้อมูลไม่ได้จนกว่าจะออนไลน์</p>
+  <div style="text-align:right"><button class="btn" onclick="document.getElementById('help').classList.remove('show')">ปิด</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script src="config.js"></script>
+<script>
+let APP = null, CUR = 'dashboard', ROWS = [], EDIT = null, FILTER = '', TOKEN = null, USER = null;
+const ADMIN = 'ผู้ดูแลระบบ';
+const API_URL = (window.APP_CONFIG && window.APP_CONFIG.API_URL) || '';
+
+function store(k,v){try{if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch(e){}}
+function load(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',2800);}
+
+// ---------- เรียก API (Apps Script) ----------
+// ส่ง POST แบบ text/plain (ไม่ตั้ง Content-Type เอง) เพื่อไม่ให้เบราว์เซอร์ทำ preflight ซึ่ง Apps Script ไม่รองรับ
+function api(action, payload){
+  if(!API_URL||API_URL.indexOf('PASTE')>=0) return Promise.reject(new Error('ยังไม่ได้ตั้งค่า API_URL ในไฟล์ config.js'));
+  return fetch(API_URL,{method:'POST',redirect:'follow',body:JSON.stringify(Object.assign({action:action},payload||{}))})
+    .catch(()=>{throw new Error('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ กรุณาตรวจสอบอินเทอร์เน็ต');})
+    .then(r=>r.text())
+    .then(t=>{
+      let j; try{j=JSON.parse(t);}catch(e){throw new Error('เซิร์ฟเวอร์ตอบกลับไม่ถูกต้อง (ตรวจว่า Deploy เป็น "Anyone" และใช้ URL ที่ลงท้าย /exec)');}
+      if(!j.ok) throw new Error(j.error||'เกิดข้อผิดพลาด');
+      return j.data;
+    });
+}
+
+function fail(e){
+  const m=(e&&e.message)?e.message:String(e);
+  if(m.indexOf('SESSION_EXPIRED')>=0){TOKEN=null;USER=null;store('tok',null);showLogin('เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่');return;}
+  toast('เกิดข้อผิดพลาด: '+m);
+}
+
+function showFatal(msg){
+  document.getElementById('appRoot').style.display='none';
+  const L=document.getElementById('login'); L.style.display='flex';
+  L.innerHTML='<div class="lbox"><div class="logo big">✚</div><h1>รพ.สต.บ้านคำยาง</h1><p>ระบบเฝ้าระวัง สอบสวน และควบคุมโรค</p>'+
+    '<div class="lerr">'+esc(msg)+'</div><button class="btn" style="width:100%;padding:12px" onclick="location.reload()">ลองใหม่</button>'+
+    '<div class="foot">Version 1.0.0 By Thanet</div></div>';
+}
+
+api('getSchema').then(init).catch(e=>showFatal(e.message));
+
+function init(a){
+  APP=a;
+  document.title=a.appName+' — '+a.appSub;
+  document.getElementById('appName').textContent=a.appName;
+  document.getElementById('appTitle').textContent=a.appName;
+  document.getElementById('appSub').textContent=a.appSub;
+  document.getElementById('foot').textContent=a.version;
+  boot();
+  setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleTimeString('th-TH');},1000);
+}
+
+function buildNav(){
+  let h='<a data-p="dashboard" onclick="go(\'dashboard\')">📊 <span>แดชบอร์ด</span></a>';
+  Object.keys(APP.schema).filter(k=>!APP.schema[k].adminOnly||USER.role===ADMIN).forEach(k=>{h+='<a data-p="'+k+'" onclick="go(\''+k+'\')">'+APP.schema[k].icon+' <span>'+esc(APP.schema[k].label)+'</span></a>';});
+  document.getElementById('nav').innerHTML=h;
+}
+
+function go(p,filter){
+  CUR=p; FILTER=filter||'';
+  document.getElementById('side').classList.remove('open');
+  document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.p===p));
+  document.getElementById('pageTitle').textContent=p==='dashboard'?'แดชบอร์ด':APP.schema[p].label;
+  document.getElementById('content').innerHTML='<div class="empty">กำลังโหลด...</div>';
+  if(p==='dashboard') api('getDashboard',{token:TOKEN}).then(d=>{if(CUR===p)renderDash(d);}).catch(fail);
+  else api('listRows',{token:TOKEN,name:p}).then(r=>{if(CUR===p){ROWS=r;renderList();}}).catch(fail);
+}
+
+// ---------- เข้าสู่ระบบ ----------
+function cleanUrl(){try{history.replaceState(null,'',location.pathname);}catch(e){}}
+
+function boot(){
+  const q=new URLSearchParams(location.search);
+  if(q.get('error')){
+    const m=q.get('error_description')||q.get('error'); cleanUrl();
+    return showLogin('เข้าสู่ระบบไม่สำเร็จ: '+m);
+  }
+  if(q.get('code')){ // กลับมาจาก Provider ID / ThaiD
+    const code=q.get('code'), state=q.get('state')||''; cleanUrl();
+    return api('oauthCallback',{code:code,state:state}).then(res=>{
+      if(res.session){TOKEN=res.session.token;USER=res.session;store('tok',TOKEN);startApp();}
+      else if(res.denied) showLogin(null,res.denied);
+      else showLogin(res.error||'เข้าสู่ระบบไม่สำเร็จ');
+    }).catch(e=>showLogin(e.message));
+  }
+  const t=load('tok');
+  if(!t) return showLogin();
+  api('checkSession',{token:t})
+    .then(u=>{if(u){TOKEN=t;USER=u;startApp();}else{store('tok',null);showLogin();}})
+    .catch(()=>showLogin());
+}
+
+function startApp(){
+  document.getElementById('login').style.display='none';
+  document.getElementById('appRoot').style.display='';
+  document.getElementById('who').textContent=USER.name+' ('+USER.role+')';
+  if(isStandalone()) document.getElementById('installBtn').style.display='none';
+  buildNav(); go('dashboard'); startPolling();
+}
+
+function showLogin(err,denied){
+  document.getElementById('appRoot').style.display='none';
+  const L=document.getElementById('login'); L.style.display='flex';
+  let h='<div class="lbox"><div class="logo big">✚</div><h1>'+esc(APP.appName)+'</h1><p>'+esc(APP.appSub)+'</p>';
+  if(err) h+='<div class="lerr">'+esc(err)+'</div>';
+  if(denied) h+='<div class="lerr"><b>บัญชีนี้ยังไม่ได้รับสิทธิ์ใช้งานระบบ</b><br>'+esc(denied.name||'')+
+    '<br>รหัสผู้ใช้: <code>'+esc(denied.loginId)+'</code><br><small>แจ้งรหัสนี้ให้ผู้ดูแลระบบเพื่อเพิ่มสิทธิ์</small></div>';
+  h+='<div id="lmsg"></div><form onsubmit="return doLogin(event)"><input id="lu" placeholder="ชื่อผู้ใช้" autocomplete="username" autocapitalize="none" style="margin-bottom:10px">'+
+    '<input id="lp" type="password" placeholder="รหัสผ่าน" autocomplete="current-password" style="margin-bottom:12px">'+
+    '<button class="btn" id="lgo" style="width:100%;padding:12px">เข้าสู่ระบบ</button></form>'+
+    '<div id="lbtns" style="margin-top:14px"></div><div class="foot">'+esc(APP.version)+'</div></div>';
+  L.innerHTML=h;
+  api('getLoginInfo').then(renderLoginBtns).catch(()=>{});
+}
+
+function renderLoginBtns(i){
+  let h='';
+  if(i.providerUrl) h+='<a class="lbtn prv" href="'+esc(i.providerUrl)+'">🏥 เข้าสู่ระบบด้วย Provider ID</a>';
+  if(i.thaidUrl) h+='<a class="lbtn thaid" href="'+esc(i.thaidUrl)+'">🪪 เข้าสู่ระบบด้วย ThaiD</a>';
+  const el=document.getElementById('lbtns'); if(!el) return;
+  el.innerHTML=h?'<div class="ldiv">หรือเข้าสู่ระบบด้วย</div>'+h:'';
+}
+
+function doLogin(ev){
+  ev.preventDefault();
+  const u=document.getElementById('lu').value, p=document.getElementById('lp').value, b=document.getElementById('lgo');
+  b.disabled=true; b.textContent='กำลังตรวจสอบ...';
+  api('loginPassword',{username:u,password:p})
+    .then(s=>{TOKEN=s.token;USER=s;store('tok',TOKEN);startApp();})
+    .catch(e=>{
+      b.disabled=false; b.textContent='เข้าสู่ระบบ';
+      document.getElementById('lmsg').innerHTML='<div class="lerr">'+esc(e.message)+'</div>';
+    });
+  return false;
+}
+
+function logout(){
+  const t=TOKEN; TOKEN=null; USER=null; store('tok',null);
+  if(t) api('logout',{token:t}).catch(()=>{});
+  showLogin();
+}
+
+// ---------- เปลี่ยนรหัสผ่าน ----------
+function openPw(){
+  ['pw0','pw1','pw2'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('pwmsg').innerHTML='';
+  document.getElementById('pwm').classList.add('show');
+}
+function closePw(){document.getElementById('pwm').classList.remove('show');}
+function doChangePw(ev){
+  ev.preventDefault();
+  const o=document.getElementById('pw0').value, n=document.getElementById('pw1').value, c=document.getElementById('pw2').value;
+  const msg=document.getElementById('pwmsg'), b=document.getElementById('pwgo');
+  if(n!==c){msg.innerHTML='<div class="lerr">รหัสผ่านใหม่ไม่ตรงกัน</div>';return false;}
+  b.disabled=true;
+  api('changePassword',{token:TOKEN,oldPw:o,newPw:n})
+    .then(()=>{b.disabled=false;closePw();toast('เปลี่ยนรหัสผ่านแล้ว');})
+    .catch(e=>{
+      b.disabled=false;
+      if(e.message.indexOf('SESSION_EXPIRED')>=0){closePw();return fail(e);}
+      msg.innerHTML='<div class="lerr">'+esc(e.message)+'</div>';
+    });
+  return false;
+}
+
+// ---------- ติดตั้งเป็นแอป (PWA) ----------
+let DEFER=null;
+function isStandalone(){return (window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone===true;}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();DEFER=e;});
+window.addEventListener('appinstalled',()=>{DEFER=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';toast('ติดตั้งแอปแล้ว');});
+function installApp(){
+  if(DEFER){const d=DEFER;DEFER=null;d.prompt();}
+  else showHelp();
+}
+function showHelp(){document.getElementById('help').classList.add('show');}
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});}
+
+// ---------- อัปเดตแบบเรียลไทม์ (polling) ----------
+let LAST=null, POLL=null, TICK=0;
+function startPolling(){
+  if(POLL) clearInterval(POLL);
+  LAST=null; TICK=0; POLL=setInterval(poll,15000); poll();
+}
+function poll(){
+  if(!TOKEN||document.hidden||document.getElementById('modal').classList.contains('show')) return;
+  TICK++;
+  api('getChangeStamp',{token:TOKEN})
+    .then(s=>{
+      const changed=LAST!==null&&s!==LAST;
+      LAST=s; setLive(false);
+      if(changed||TICK%4===0) silentRefresh(); // รีเฟรชทุก ~60 วินาที เพื่อจับการแก้ไขในชีตโดยตรงด้วย
+    })
+    .catch(e=>{
+      if(e.message.indexOf('SESSION_EXPIRED')>=0) fail(e); else setLive(true);
+    });
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&TOKEN)poll();});
+window.addEventListener('online',()=>{if(TOKEN)poll();});
+window.addEventListener('offline',()=>setLive(true));
+function silentRefresh(){
+  const page=CUR;
+  if(page==='dashboard') api('getDashboard',{token:TOKEN}).then(d=>{if(page===CUR)renderDash(d);}).catch(()=>{});
+  else api('listRows',{token:TOKEN,name:page}).then(r=>{if(page===CUR){ROWS=r;drawRows();}}).catch(()=>{});
+}
+function setLive(off){
+  const el=document.getElementById('live');
+  if(el) el.textContent=off?'🔴 ขาดการเชื่อมต่อ':'🟢 สด '+new Date().toLocaleTimeString('th-TH');
+}
+
+// ---------- Dashboard ----------
+function renderDash(d){
+  const max=Math.max(1,...d.weekly.map(w=>w.count));
+  const toneCls={red:'t-red',amber:'t-amber',blue:'t-blue'};
+  let h='<div class="grid2"><div>';
+  h+='<div class="card status '+d.levelTone+'"><span class="pill">● ระดับสถานการณ์: '+esc(d.level)+'</span>';
+  h+='<h2>'+(d.todoTotal?'มีงานที่ต้องดำเนินการ '+d.todoTotal+' รายการ':'ไม่มีงานค้างวันนี้')+'</h2><div>'+esc(d.levelMsg)+' · วันที่ '+esc(d.today)+'</div></div>';
+  h+='<div class="kpis">'+d.kpis.map(k=>'<div class="kpi"><span>'+esc(k.label)+'</span><b>'+k.value+'</b></div>').join('')+'</div>';
+  h+='<div class="card"><h3>ผู้ป่วยรายสัปดาห์ (ตามวันเริ่มป่วย)</h3><div class="bars">'+d.weekly.map(w=>
+    '<div class="bar"><em>'+w.count+'</em><i style="height:'+Math.round(w.count/max*100)+'%"></i><small>'+esc(w.label)+'</small></div>').join('')+'</div></div>';
+  h+='</div><div>';
+  h+='<div class="card todo"><h3>📋 สิ่งที่ต้องทำวันนี้</h3>'+d.todo.map(t=>
+    '<a class="'+(t.count?toneCls[t.tone]:'')+'" style="'+(t.count?'':'background:#f4f7f9;color:#8a99a6')+'" onclick="go(\''+t.page+'\',\''+esc(t.filter).replace(/'/g,"\\'")+'\')">'+esc(t.label)+'<b>'+t.count+'</b></a>').join('')+'</div>';
+  h+='<div class="card" style="margin-top:16px"><h3>🦟 เตือนภัยไข้เลือดออก</h3>'+(d.dengue.length?d.dengue.map(x=>
+    '<div class="alert">หมู่ '+esc(x.village)+' พบผู้ป่วย '+x.count+' ราย ภายใน 14 วัน — ควรพ่นควบคุมโรค/กำจัดลูกน้ำ</div>').join(''):'<div class="ok">ยังไม่พบหมู่บ้านที่มีผู้ป่วย ≥ 2 ราย ใน 14 วัน</div>')+'</div>';
+  h+='<div class="card" style="margin-top:16px"><h3>โรคที่พบมาก (28 วัน)</h3><div class="rank">'+(d.byDisease.length?d.byDisease.map(x=>'<div><span>'+esc(x.name)+'</span><b>'+x.count+'</b></div>').join(''):'<div class="ok">ยังไม่มีข้อมูล</div>')+'</div></div>';
+  h+='<div class="card" style="margin-top:16px"><h3>หมู่บ้านที่พบมาก (28 วัน)</h3><div class="rank">'+(d.byVillage.length?d.byVillage.map(x=>'<div><span>หมู่ '+esc(x.name)+'</span><b>'+x.count+'</b></div>').join(''):'<div class="ok">ยังไม่มีข้อมูล</div>')+'</div></div>';
+  h+='</div></div>';
+  document.getElementById('content').innerHTML=h;
+}
+
+// ---------- รายการ ----------
+function badge(v){
+  if(!v) return '';
+  if(/รอ|ยังไม่|สงสัย|น่าจะ/.test(v)) return '<span class="b a">'+esc(v)+'</span>';
+  if(/มีอาการ|บวก|ยืนยัน|เสียชีวิต|เป็นจริง/.test(v)) return '<span class="b r">'+esc(v)+'</span>';
+  if(/เสร็จ|ปิด|ลบ|หาย|รายงานแล้ว|สอบสวนแล้ว|ควบคุมโรคแล้ว|ไม่มีอาการ|ไม่เป็นจริง|ตัดออก/.test(v)) return '<span class="b g">'+esc(v)+'</span>';
+  return '<span class="b n">'+esc(v)+'</span>';
+}
+
+function renderList(){
+  const s=APP.schema[CUR], cols=s.fields.filter(f=>f.t!=='hidden').slice(0,6);
+  let h='<div class="tools"><input id="q" placeholder="ค้นหา..." value="'+esc(FILTER)+'" oninput="FILTER=this.value;drawRows()"><button class="btn" onclick="openForm()">＋ เพิ่มข้อมูล</button>'+
+        '<button class="btn sec" onclick="go(CUR)">รีเฟรช</button></div>';
+  h+='<div class="tbl"><table><thead><tr>'+cols.map(f=>'<th>'+esc(f.l)+'</th>').join('')+'<th></th></tr></thead><tbody id="tb"></tbody></table></div>';
+  document.getElementById('content').innerHTML=h;
+  drawRows();
+}
+
+function drawRows(){
+  if(!document.getElementById('tb')) return;
+  const s=APP.schema[CUR], cols=s.fields.filter(f=>f.t!=='hidden').slice(0,6), q=FILTER.trim().toLowerCase();
+  const list=ROWS.filter(r=>!q||s.fields.some(f=>String(r[f.k]||'').toLowerCase().includes(q)));
+  document.getElementById('tb').innerHTML=list.length?list.map(r=>'<tr>'+cols.map(f=>'<td>'+(f.t==='select'?badge(r[f.k]):esc(r[f.k]))+'</td>').join('')+
+    '<td style="white-space:nowrap"><button class="btn sec sm" onclick="openForm(\''+r.ID+'\')">แก้ไข</button> <button class="btn del sm" onclick="del(\''+r.ID+'\')">ลบ</button></td></tr>').join('')
+    :'<tr><td colspan="'+(cols.length+1)+'" class="empty">ไม่พบข้อมูล</td></tr>';
+}
+
+// ---------- ฟอร์ม ----------
+function openForm(id){
+  const s=APP.schema[CUR]; EDIT=id?ROWS.find(r=>r.ID===id):null;
+  document.getElementById('mTitle').textContent=(EDIT?'แก้ไข':'เพิ่ม')+' — '+s.label;
+  const today=new Date(Date.now()+7*3600e3).toISOString().slice(0,10);
+  document.getElementById('form').innerHTML=s.fields.concat(s.virtual||[]).filter(f=>f.t!=='hidden').map(f=>{
+    let v=EDIT?(EDIT[f.k]||''):''; if(!EDIT&&f.t==='date'&&f.req) v=today;
+    let inp;
+    if(f.t==='select') inp='<select name="'+f.k+'"><option value=""></option>'+f.o.map(o=>'<option'+(o===v?' selected':'')+'>'+esc(o)+'</option>').join('')+'</select>';
+    else if(f.t==='textarea') inp='<textarea rows="3" name="'+f.k+'">'+esc(v)+'</textarea>';
+    else inp='<input type="'+(f.t==='number'?'number':f.t==='date'?'date':f.t==='password'?'password':'text')+'" name="'+f.k+'" value="'+esc(v)+'"'+(f.t==='password'?' autocomplete="new-password"':'')+'>';
+    return '<div class="'+(f.t==='textarea'?'full':'')+'"><label>'+esc(f.l)+(f.req?' *':'')+'</label>'+inp+'</div>';
+  }).join('');
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+
+function saveForm(){
+  const s=APP.schema[CUR], o={}, f=document.getElementById('form');
+  for(const fl of s.fields.concat(s.virtual||[]).filter(f=>f.t!=='hidden')){
+    o[fl.k]=f.elements[fl.k].value;
+    if(fl.req&&!String(o[fl.k]).trim()){toast('กรุณากรอก: '+fl.l);return;}
+  }
+  if(EDIT) o.ID=EDIT.ID;
+  const b=document.getElementById('saveBtn'); b.disabled=true; b.textContent='กำลังบันทึก...';
+  api('saveRow',{token:TOKEN,name:CUR,obj:o})
+    .then(()=>{b.disabled=false;b.textContent='บันทึก';closeModal();toast('บันทึกแล้ว');go(CUR);})
+    .catch(e=>{b.disabled=false;b.textContent='บันทึก';fail(e);});
+}
+
+function del(id){
+  if(!confirm('ยืนยันการลบข้อมูลนี้?')) return;
+  api('deleteRow',{token:TOKEN,name:CUR,id:id}).then(()=>{toast('ลบแล้ว');go(CUR);}).catch(fail);
+}
+</script>
+</body>
+</html>

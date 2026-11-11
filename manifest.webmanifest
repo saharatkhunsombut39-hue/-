@@ -1,0 +1,18 @@
+{
+  "id": "./",
+  "name": "รพ.สต.บ้านคำยาง — ระบบเฝ้าระวัง สอบสวน และควบคุมโรค",
+  "short_name": "บ้านคำยาง",
+  "description": "ระบบเฝ้าระวัง สอบสวน และควบคุมโรค รพ.สต.บ้านคำยาง",
+  "lang": "th",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f7f9",
+  "theme_color": "#0f9d8a",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
